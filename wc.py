@@ -1,25 +1,20 @@
 import sys
 
-print("hello world from wc cli")
-
 def print_wc_output(counts, filepath):
-    spacing = "    "
     for count in counts:
+        spacing = " "*(8 - len(str(count)))
         print(spacing + str(count), end="")
-        spacing = spacing[:-1]
     print(" " + filepath)
 
 def parse_arguments(argv):
     argv.pop(0)
-    print(argv)
-    file = ""
+    files = []
     useDefaultOptions = True
     options = {'c': False, 'm': False, 'l': False, 'w': False}
     for arg in argv:
         if (arg.startswith("-")):
             useDefaultOptions = False
             optionsToAdd = list(arg[1:])
-            print("optionsToAdd: ", optionsToAdd)
             for option in optionsToAdd:
                 if(option == 'c'): options['m'] = False
                 elif (option == 'm'): options['c'] = False
@@ -30,12 +25,12 @@ def parse_arguments(argv):
                 options[option] = True
         else: 
             file = arg
-            print("file: ", arg)
+            files.append(file)
     
     if(useDefaultOptions):
         options = {'c': True, 'm': False, 'l': True, 'w': True}
 
-    return [options, file]
+    return [options, files]
 
 def read_binary(filepath, options):
     try: 
@@ -61,10 +56,12 @@ def read_binary(filepath, options):
         if(options['c']): counts.append(byte_count)
         
         print_wc_output(counts, filepath)
+        return counts
 
     except Exception as e: 
         print("wc-cli: " + filepath + ": " + e.args[1])
         exit()
+
 
 
 def read_text(filepath, options):
@@ -90,19 +87,35 @@ def read_text(filepath, options):
         if(options['m']): counts.append(char_count)
         
         print_wc_output(counts, filepath)
+        return counts
 
     except Exception as e: 
         print("wc-cli: " + filepath + ": " + e.args[1])
         exit()
 
-print(sys.argv)
-[options, filepath] = parse_arguments(sys.argv)
-print("options: ", options)
-print("filename: ", filepath)
+[options, files] = parse_arguments(sys.argv)
 
-if(options['m']):
-    read_text(filepath, options)
-else:
-    read_binary(filepath, options)
+all_counts = []
+for filepath in files:
+    counts = []
+    if(options['m']):
+        counts = read_text(filepath, options)
+    else:
+        counts = read_binary(filepath, options)
+    all_counts.append(counts)
+
+if(len(all_counts) > 1):
+    counts_len = len(all_counts[0])
+    total_counts = []
+    for i in range(counts_len):
+        total_count = 0
+        for counts in all_counts:
+            total_count = total_count + counts[i]
+        total_counts.append(total_count)
+    
+    print_wc_output(total_counts, "total")
+    
+
+
 
 
