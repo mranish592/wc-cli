@@ -60,7 +60,7 @@ def read_binary(filepath, options):
 
     except Exception as e: 
         print("wc-cli: " + filepath + ": " + e.args[1])
-        exit()
+        return None
 
 
 
@@ -91,7 +91,7 @@ def read_text(filepath, options):
 
     except Exception as e: 
         print("wc-cli: " + filepath + ": " + e.args[1])
-        exit()
+        return None
 
 [options, files] = parse_arguments(sys.argv)
 
@@ -105,6 +105,7 @@ for filepath in files:
     all_counts.append(counts)
 
 if(len(all_counts) > 1):
+    all_counts = [counts for counts in all_counts if counts is not None]
     counts_len = len(all_counts[0])
     total_counts = []
     for i in range(counts_len):
