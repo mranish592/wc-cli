@@ -1,5 +1,5 @@
 #! /bin/bash
-wc_cli_alias_name=my-wc
+wc_cli_alias_name=wc-cli
 workdir=$(pwd)
 
 if ! grep -q "alias $wc_cli_alias_name=" ~/.zshrc; then
