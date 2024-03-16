@@ -1,5 +1,6 @@
 # wc-cli
 A cli tool written in python to count lines, words, characters and bytes.
+This project is inspired by [codingchallenges.fyi](https://codingchallenges.fyi/challenges/challenge-wc)
 
 ## Usage
 wc-cli [-clmw] [file ...]
