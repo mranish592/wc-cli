@@ -4,7 +4,9 @@ def print_wc_output(counts, filepath):
     for count in counts:
         spacing = " "*(8 - len(str(count)))
         print(spacing + str(count), end="")
-    print(" " + filepath)
+    if(filepath != None):
+        print(" " + filepath)
+    else: print("")
 
 def parse_arguments(argv):
     argv.pop(0)
@@ -32,7 +34,7 @@ def parse_arguments(argv):
 
     return [options, files]
 
-def read_binary(filepath, options):
+def read_binary_file(filepath, options):
     try: 
         file = open(filepath, "rb")
 
@@ -64,7 +66,7 @@ def read_binary(filepath, options):
 
 
 
-def read_text(filepath, options):
+def read_text_file(filepath, options):
     try: 
         file = open(filepath)
         line = file.readline()
@@ -93,15 +95,70 @@ def read_text(filepath, options):
         print("wc-cli: " + filepath + ": " + e.args[1])
         return None
 
+def read_binary_stdin(options):
+    try: 
+        line_count = 0
+        byte_count = 0
+        word_count = 0
+
+        for line in sys.stdin.buffer:
+            if(options['l']): line_count = line_count + 1
+            if(options['c']): byte_count = byte_count + len(line)
+            if(options['w']): 
+                words = line.strip().split()
+                word_count = word_count + len(words)
+
+        counts = []
+        if(options['l']): counts.append(line_count)
+        if(options['w']): counts.append(word_count)
+        if(options['c']): counts.append(byte_count)
+        
+        print_wc_output(counts, None)
+        return counts
+
+    except Exception as e: 
+        print("wc-cli: " + e.args[1])
+        return None
+    
+def read_text_stdin(options):
+    try: 
+        line_count = 0
+        char_count = 0
+        word_count = 0
+
+        for line in sys.stdin:
+            if(options['l']): line_count = line_count + 1
+            if(options['m']): char_count = char_count + len(line)
+            if(options['w']): 
+                words = line.strip().split()
+                word_count = word_count + len(words)
+
+        counts = []
+        if(options['l']): counts.append(line_count)
+        if(options['w']): counts.append(word_count)
+        if(options['m']): counts.append(char_count)
+        
+        print_wc_output(counts, None)
+        return counts
+
+    except Exception as e: 
+        print("wc-cli: " + e.args[1])
+        return None
+
 [options, files] = parse_arguments(sys.argv)
+if(len(files) == 0):
+    if(options['m']):
+        read_text_stdin(options)
+    else:
+        read_binary_stdin(options)
 
 all_counts = []
 for filepath in files:
     counts = []
     if(options['m']):
-        counts = read_text(filepath, options)
+        counts = read_text_file(filepath, options)
     else:
-        counts = read_binary(filepath, options)
+        counts = read_binary_file(filepath, options)
     all_counts.append(counts)
 
 if(len(all_counts) > 1):
